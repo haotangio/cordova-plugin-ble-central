@@ -85,8 +85,10 @@ public class Peripheral extends BluetoothGattCallback {
         connecting = false;
 
         if (gatt != null) {
+            LOG.d(TAG, "disconnect");
             gatt.disconnect();
-            gatt = null;
+            //gatt.close();
+            //gatt = null;
         }
     }
 
@@ -214,7 +216,6 @@ public class Peripheral extends BluetoothGattCallback {
 
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-
         this.gatt = gatt;
 
         if (newState == BluetoothGatt.STATE_CONNECTED) {
@@ -224,13 +225,15 @@ public class Peripheral extends BluetoothGattCallback {
             gatt.discoverServices();
 
         } else {
+            LOG.d(TAG, "onConnectionStateChange stat: " + BluetoothGatt.STATE_DISCONNECTED);
             if (newState == BluetoothGatt.STATE_DISCONNECTED) {
-                gatt.close();
+                this.gatt.close();
+                this.gatt = null;
             }
             if (connectCallback != null) {
                 connectCallback.error(this.asJSONObject("Peripheral Disconnected"));
             }
-            disconnect();
+            //disconnect();
         }
 
     }
